@@ -47,7 +47,7 @@ class Room(db.Model):
             Booking.room_id == self.id,
             Booking.check_in_date <= current_date,
             Booking.check_out_date > current_date,
-            Booking.booking_status != 'cancelled'
+            Booking.booking_status != 'canceled'
         ).first()
 
 
@@ -66,11 +66,21 @@ class Booking(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     @classmethod
-    def check_availability(cls, room_id, check_in_date, check_out_date):
-        """Check if a room is available for the given dates."""
-        overlapping_bookings = cls.query.filter(
+    def check_availability(cls, room_id, check_in_date, check_out_date, exclude_booking_id=None):
+        """Check if a room is available for the given dates.
+        
+        Args:
+            room_id: The ID of the room to check
+            check_in_date: The check-in date
+            check_out_date: The check-out date
+            exclude_booking_id: Optional booking ID to exclude from the check (for modifications)
+        
+        Returns:
+            bool: True if the room is available, False otherwise
+        """
+        query = cls.query.filter(
             cls.room_id == room_id,
-            cls.booking_status != 'cancelled',
+            cls.booking_status != 'canceled',  # Note: fixed spelling from 'cancelled' to 'canceled'
             db.or_(
                 db.and_(
                     cls.check_in_date <= check_in_date,
@@ -85,7 +95,13 @@ class Booking(db.Model):
                     cls.check_out_date <= check_out_date
                 )
             )
-        ).count()
+        )
+        
+        # If we're modifying an existing booking, exclude it from the availability check
+        if exclude_booking_id:
+            query = query.filter(cls.id != exclude_booking_id)
+            
+        overlapping_bookings = query.count()
         
         return overlapping_bookings == 0
     

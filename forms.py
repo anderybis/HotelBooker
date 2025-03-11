@@ -89,3 +89,21 @@ class RoomForm(FlaskForm):
     amenities = StringField('Amenities', validators=[DataRequired()])
     image_url = URLField('Image URL', validators=[DataRequired(), URL()])
     submit = SubmitField('Save Room')
+
+
+class ModifyBookingForm(FlaskForm):
+    check_in = DateField('Check-in Date', validators=[DataRequired()])
+    check_out = DateField('Check-out Date', validators=[DataRequired()])
+    guests = SelectField('Number of Guests', coerce=int, validators=[DataRequired()])
+    submit = SubmitField('Update Booking')
+    
+    def validate_check_out(self, check_out):
+        if self.check_in.data and check_out.data:
+            if check_out.data <= self.check_in.data:
+                raise ValidationError('Check-out date must be after check-in date.')
+    
+    def validate_check_in(self, check_in):
+        if check_in.data:
+            today = date.today()
+            if check_in.data < today:
+                raise ValidationError('Check-in date cannot be in the past.')
