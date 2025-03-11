@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Modify Booking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Modify Your Booking</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> Important Information:</h5>
+                        <ul>
+                            <li>Modification is subject to room availability</li>
+                            <li>Price changes will be calculated automatically</li>
+                            <li>You can only modify bookings that are in 'confirmed' status</li>
+                        </ul>
+                    </div>
+
+                    <form method="POST" id="modify-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    {{ form.check_in.label(class="form-label") }}
+                                    {{ form.check_in(class="form-control", type="date", min=today.strftime('%Y-%m-%d')) }}
+                                    {% for error in form.check_in.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    {{ form.check_out.label(class="form-label") }}
+                                    {{ form.check_out(class="form-control", type="date", min=today.strftime('%Y-%m-%d')) }}
+                                    {% for error in form.check_out.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form.guests.label(class="form-label") }}
+                                {{ form.guests(class="form-select") }}
+                                {% for error in form.guests.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5>Booking Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Room:</strong> {{ booking.room.room_type.title() }} ({{ booking.room.room_number }})</p>
+                                        <p><strong>Original Total:</strong> ${{ booking.total_price }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>New Total:</strong> <span id="new-price">${{ booking.total_price }}</span></p>
+                                        <p><strong>Price Difference:</strong> <span id="price-difference">$0.00</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group text-center mt-4">
+                            <a href="{{ url_for('booking.view', booking_id=booking.id) }}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInField = document.getElementById('check_in');
+    const checkOutField = document.getElementById('check_out');
+    const guestsField = document.getElementById('guests');
+    const newPriceEl = document.getElementById('new-price');
+    const priceDifferenceEl = document.getElementById('price-difference');
+    const originalPrice = {{ booking.total_price }};
+    
+    // Function to check availability and update pricing
+    function checkAvailabilityAndPrice() {
+        const checkIn = checkInField.value;
+        const checkOut = checkOutField.value;
+        
+        if (!checkIn || !checkOut) return;
+        
+        const formData = new FormData();
+        formData.append('check_in', checkIn);
+        formData.append('check_out', checkOut);
+        
+        fetch('{{ url_for("booking.check_availability", room_id=booking.room_id) }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.available) {
+                newPriceEl.textContent = '$' + data.total_price.toFixed(2);
+                const difference = data.total_price - originalPrice;
+                if (difference > 0) {
+                    priceDifferenceEl.textContent = '+$' + difference.toFixed(2);
+                    priceDifferenceEl.className = 'text-danger';
+                } else if (difference < 0) {
+                    priceDifferenceEl.textContent = '-$' + Math.abs(difference).toFixed(2);
+                    priceDifferenceEl.className = 'text-success';
+                } else {
+                    priceDifferenceEl.textContent = '$0.00';
+                    priceDifferenceEl.className = '';
+                }
+            } else {
+                newPriceEl.textContent = 'Not Available';
+                priceDifferenceEl.textContent = 'N/A';
+                alert('The room is not available for the selected dates.');
+            }
+        })
+        .catch(error => {
+            console.error('Error checking availability:', error);
+        });
+    }
+    
+    // Add event listeners to form fields
+    checkInField.addEventListener('change', checkAvailabilityAndPrice);
+    checkOutField.addEventListener('change', checkAvailabilityAndPrice);
+});
+</script>
+{% endblock %}
+
+{% endblock %}
