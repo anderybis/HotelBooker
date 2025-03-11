@@ -40,14 +40,16 @@ def register():
     if form.validate_on_submit():
         user = User(
             username=form.username.data,
-            email=form.email.data
+            email=form.email.data,
+            phone_number=form.phone_number.data if form.phone_number.data else None,
+            sms_notifications=form.sms_notifications.data
         )
         user.set_password(form.password.data)
         
         try:
             db.session.add(user)
             db.session.commit()
-            logger.info(f"New user registered: {user.username}")
+            logger.info(f"New user registered: {user.username} (Phone: {user.phone_number}, SMS: {user.sms_notifications})")
             flash('Registration successful. Please login.', 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:

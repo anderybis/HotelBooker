@@ -13,8 +13,10 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    phone_number = StringField('Phone Number (Optional)', validators=[Length(max=20)])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8, max=128)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    sms_notifications = BooleanField('Receive SMS notifications for bookings', default=True)
     submit = SubmitField('Register')
     
     def validate_username(self, username):
@@ -26,6 +28,17 @@ class RegisterForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Email already registered. Please use a different one.')
+            
+    def validate_phone_number(self, phone_number):
+        if phone_number.data:
+            # Check if the phone number is in E.164 format (e.g., +1234567890)
+            if not phone_number.data.startswith('+'):
+                raise ValidationError('Phone number must be in international format starting with + (e.g., +1234567890)')
+            
+            # Check if phone number is already registered
+            user = User.query.filter_by(phone_number=phone_number.data).first()
+            if user:
+                raise ValidationError('This phone number is already registered.')
 
 
 class SearchForm(FlaskForm):
