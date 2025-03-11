@@ -57,9 +57,14 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('booking.view', booking_id=booking.id) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye"></i>
+                                        <a href="{{ url_for('booking.view', booking_id=booking.id) }}" class="btn btn-sm btn-primary" title="View booking details">
+                                            <i class="fas fa-eye"></i> View
                                         </a>
+                                        {% if booking.booking_status == 'confirmed' %}
+                                        <a href="{{ url_for('booking.modify', booking_id=booking.id) }}" class="btn btn-sm btn-secondary" title="Modify booking">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
