@@ -52,7 +52,7 @@
                                     <td>{{ booking.check_out_date.strftime('%Y-%m-%d') }}</td>
                                     <td>${{ booking.total_price }}</td>
                                     <td>
-                                        <span class="badge bg-{{ 'success' if booking.booking_status == 'confirmed' else 'warning' if booking.booking_status == 'pending' else 'danger' }}">
+                                        <span class="badge bg-{{ 'success' if booking.booking_status == 'confirmed' else 'warning' if booking.booking_status == 'pending' else 'danger' if booking.booking_status == 'canceled' else 'secondary' }}">
                                             {{ booking.booking_status|title }}
                                         </span>
                                     </td>

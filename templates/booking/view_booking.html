@@ -1,19 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Booking Details{% endblock %}
+{% block title %}View Booking{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3>Booking Details</h3>
-                        <span class="badge bg-{{ 'success' if booking.booking_status == 'confirmed' else 'warning' if booking.booking_status == 'pending' else 'danger' }}">
-                            {{ booking.booking_status|title }}
-                        </span>
-                    </div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>Booking Details</h3>
+                    <span class="badge {% if booking.booking_status == 'confirmed' %}bg-success{% elif booking.booking_status == 'canceled' %}bg-danger{% else %}bg-warning{% endif %} fs-6">
+                        {{ booking.booking_status.title() }}
+                    </span>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -42,7 +40,7 @@
                             <ul class="list-unstyled">
                                 <li><strong>Total Amount:</strong> ${{ booking.total_price }}</li>
                                 <li><strong>Payment Status:</strong> 
-                                    <span class="badge bg-{{ 'success' if booking.payment_status == 'paid' else 'warning' }}">
+                                    <span class="badge {% if booking.payment_status == 'paid' %}bg-success{% else %}bg-warning{% endif %}">
                                         {{ booking.payment_status.title() }}
                                     </span>
                                 </li>
@@ -56,33 +54,49 @@
                             </ul>
                         </div>
                     </div>
+                    
+                    {% if booking.booking_status == 'confirmed' and booking.check_in_date > today %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('booking.modify', booking_id=booking.id) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Modify Booking
+                                </a>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                                    <i class="fas fa-times"></i> Cancel Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-
-            {% if booking.booking_status == 'confirmed' and booking.check_in_date > today %}
+            
             <div class="card mt-4">
                 <div class="card-header">
-                    <h4>Manage Your Booking</h4>
+                    <h4>Room Details</h4>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('booking.modify', booking_id=booking.id) }}" class="btn btn-primary">
-                            <i class="fas fa-edit"></i> Modify Booking
-                        </a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
-                            <i class="fas fa-times"></i> Cancel Booking
-                        </button>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="{{ booking.room.image_url }}" alt="{{ booking.room.room_type }} Room" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-8">
+                            <h5>{{ booking.room.room_type.title() }} Room</h5>
+                            <p>{{ booking.room.description }}</p>
+                            <h6>Amenities:</h6>
+                            <p>{{ booking.room.amenities }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
 
             <div class="text-center mt-4">
-                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-primary me-2">
+                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-secondary me-2">
                     <i class="fas fa-arrow-left"></i> Back to Profile
                 </a>
-                <a href="#" class="btn btn-outline-secondary" onclick="window.print()">
-                    <i class="fas fa-print"></i> Print Details
+                <a href="#" class="btn btn-outline-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Booking Details
                 </a>
             </div>
         </div>
@@ -90,22 +104,22 @@
 </div>
 
 <!-- Cancel Booking Modal -->
+{% if booking.booking_status == 'confirmed' and booking.check_in_date > today %}
 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
+                <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to cancel this booking?</p>
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> Please note:
-                    <ul>
-                        <li>Cancellations made less than 48 hours before check-in may be subject to a cancellation fee.</li>
-                        <li>Your payment will be refunded according to our cancellation policy.</li>
-                    </ul>
-                </div>
+                <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                <ul>
+                    <li>Room: {{ booking.room.room_type.title() }} ({{ booking.room.room_number }})</li>
+                    <li>Check-in: {{ booking.check_in_date.strftime('%B %d, %Y') }}</li>
+                    <li>Check-out: {{ booking.check_out_date.strftime('%B %d, %Y') }}</li>
+                </ul>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -116,4 +130,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
