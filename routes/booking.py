@@ -5,6 +5,7 @@ from models import Room, Booking
 from forms import SearchForm, BookingForm, ModifyBookingForm
 from datetime import datetime, date
 from flask_mail import Message
+from sms import send_booking_confirmation_sms, send_booking_modification_sms, send_booking_cancellation_sms
 import logging
 
 logger = logging.getLogger(__name__)
@@ -166,11 +167,13 @@ def book(room_id):
         db.session.add(booking)
         db.session.commit()
         
-        # Send confirmation email
+        # Send confirmation email and SMS
         try:
             send_booking_confirmation(booking)
+            if booking.user.sms_notifications and booking.user.phone_number:
+                send_booking_confirmation_sms(booking)
         except Exception as e:
-            logger.error(f"Failed to send booking confirmation email: {e}")
+            logger.error(f"Failed to send booking confirmation notifications: {e}")
         
         logger.info(f"New booking created: ID {booking.id} by user {current_user.username}")
         flash('Your booking has been confirmed!', 'success')
@@ -289,8 +292,15 @@ def modify(booking_id):
                     'old_guests': old_guests,
                     'old_total_price': old_total_price
                 })
+                if booking.user.sms_notifications and booking.user.phone_number:
+                    send_booking_modification_sms(booking, {
+                        'old_check_in': old_check_in,
+                        'old_check_out': old_check_out,
+                        'old_guests': old_guests,
+                        'old_total_price': old_total_price
+                    })
             except Exception as e:
-                logger.error(f"Failed to send booking modification email: {e}")
+                logger.error(f"Failed to send booking modification notifications: {e}")
             
             logger.info(f"Booking {booking.id} modified by user {current_user.username}")
             flash('Your booking has been successfully updated!', 'success')
@@ -329,11 +339,13 @@ def cancel(booking_id):
         booking.booking_status = 'canceled'
         db.session.commit()
         
-        # Send cancellation email
+        # Send cancellation email and SMS
         try:
             send_booking_cancellation(booking)
+            if booking.user.sms_notifications and booking.user.phone_number:
+                send_booking_cancellation_sms(booking)
         except Exception as e:
-            logger.error(f"Failed to send booking cancellation email: {e}")
+            logger.error(f"Failed to send booking cancellation notifications: {e}")
         
         logger.info(f"Booking {booking.id} canceled by user {current_user.username}")
         flash('Your booking has been successfully canceled.', 'success')
