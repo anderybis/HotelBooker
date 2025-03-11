@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Admin Dashboard</h2>
+    
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="dashboard-card">
+                <h3>Total Bookings</h3>
+                <h2 class="text-primary">{{ stats.total_bookings }}</h2>
+                <p>Last 30 days</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="dashboard-card">
+                <h3>Revenue</h3>
+                <h2 class="text-success">${{ stats.total_revenue }}</h2>
+                <p>Last 30 days</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="dashboard-card">
+                <h3>Occupancy Rate</h3>
+                <h2 class="text-info">{{ stats.occupancy_rate }}%</h2>
+                <p>Current</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="dashboard-card">
+                <h3>Available Rooms</h3>
+                <h2 class="text-warning">{{ stats.available_rooms }}</h2>
+                <p>Current</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Booking Trends</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Room Type Distribution</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="roomTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Recent Bookings</h3>
+                    <a href="{{ url_for('admin.bookings') }}" class="btn btn-primary btn-sm">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Guest</th>
+                                    <th>Room</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in recent_bookings %}
+                                <tr>
+                                    <td>#{{ booking.id }}</td>
+                                    <td>{{ booking.user.username }}</td>
+                                    <td>{{ booking.room.room_number }}</td>
+                                    <td>{{ booking.check_in_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ booking.check_out_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if booking.booking_status == 'confirmed' else 'warning' }}">
+                                            {{ booking.booking_status }}
+                                        </span>
+                                    </td>
+                                    <td>${{ booking.total_price }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize charts when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+    });
+</script>
+{% endblock %}

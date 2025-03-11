@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>Welcome to Luxury Hotel</h1>
+        <p class="lead">Experience unparalleled luxury and comfort</p>
+        <a href="{{ url_for('booking.search') }}" class="btn btn-light btn-lg">Book Now</a>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Our Rooms</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card room-card">
+                <img src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa" class="card-img-top" alt="Standard Room">
+                <div class="card-body">
+                    <h5 class="card-title">Standard Room</h5>
+                    <p class="card-text">Perfect for solo travelers or couples</p>
+                    <p class="text-primary">From $99/night</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card room-card">
+                <img src="https://images.unsplash.com/photo-1628870776167-b4b684441e10" class="card-img-top" alt="Deluxe Room">
+                <div class="card-body">
+                    <h5 class="card-title">Deluxe Room</h5>
+                    <p class="card-text">Spacious comfort with premium amenities</p>
+                    <p class="text-primary">From $149/night</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card room-card">
+                <img src="https://images.unsplash.com/photo-1507652313519-d4e9174996dd" class="card-img-top" alt="Suite">
+                <div class="card-body">
+                    <h5 class="card-title">Luxury Suite</h5>
+                    <p class="card-text">Ultimate luxury with panoramic views</p>
+                    <p class="text-primary">From $299/night</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="amenities mt-5">
+        <h2 class="text-center mb-4">Hotel Amenities</h2>
+        <div class="row">
+            <div class="col-md-3 text-center mb-4">
+                <i class="fas fa-swimming-pool fa-2x mb-3 text-primary"></i>
+                <h5>Swimming Pool</h5>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <i class="fas fa-spa fa-2x mb-3 text-primary"></i>
+                <h5>Spa & Wellness</h5>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <i class="fas fa-utensils fa-2x mb-3 text-primary"></i>
+                <h5>Fine Dining</h5>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <i class="fas fa-dumbbell fa-2x mb-3 text-primary"></i>
+                <h5>Fitness Center</h5>
+            </div>
+        </div>
+    </section>
+
+    <section class="location mt-5">
+        <h2 class="text-center mb-4">Our Location</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <img src="https://images.unsplash.com/photo-1536269404660-0a8d4e88bf1b" class="img-fluid rounded" alt="Hotel Exterior">
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <div>
+                    <h3>In the Heart of the City</h3>
+                    <p>Located in the most prestigious area, our hotel offers easy access to major attractions, shopping districts, and business centers.</p>
+                    <a href="#" class="btn btn-outline-primary">Get Directions</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

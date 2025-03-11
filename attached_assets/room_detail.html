@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ room.room_type.title() }} Room{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <img src="{{ room.image_url }}" class="card-img-top" alt="{{ room.room_type }}">
+                <div class="card-body">
+                    <h2 class="card-title">{{ room.room_type.title() }} Room</h2>
+                    <p class="card-text">{{ room.description }}</p>
+
+                    <h4 class="mt-4">Amenities</h4>
+                    <div class="row mb-4">
+                        {% for amenity in room.amenities.split(',') %}
+                        <div class="col-6 col-md-4 mb-2">
+                            <i class="fas fa-check text-success"></i> {{ amenity.strip() }}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <h4>Room Details</h4>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-user-friends"></i> Capacity: {{ room.capacity }} guests</li>
+                        <li><i class="fas fa-bed"></i> Room Number: {{ room.room_number }}</li>
+                        <li><i class="fas fa-dollar-sign"></i> Price: ${{ room.price_per_night }}/night</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-container">
+                <h3>Book This Room</h3>
+                <form method="POST" action="{{ url_for('booking.book', room_id=room.id) }}" id="booking-form" data-room-id="{{ room.id }}">
+                    {{ form.hidden_tag() if form }}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="mb-3">
+                        <label class="form-label">Check-in Date</label>
+                        <input type="date" name="check_in" id="check_in" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Check-out Date</label>
+                        <input type="date" name="check_out" id="check_out" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Number of Guests</label>
+                        <select name="guests" class="form-select" required>
+                            {% for i in range(1, room.capacity + 1) %}
+                            <option value="{{ i }}">{{ i }} Guest{{ 's' if i > 1 else '' }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="availability-message" class="alert" style="display: none;"></div>
+                    <div class="mb-3">
+                        <strong>Total Price: </strong><span id="total-price">$0</span>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Points Earning: Earn 1 point per $10 spent
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" id="book-button">Book Now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

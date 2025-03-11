@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Confirmation{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle text-success fa-5x mb-3"></i>
+                    <h2>Booking Confirmed!</h2>
+                    <p class="lead">Thank you for choosing our hotel</p>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>Booking Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Room Information</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Room Type:</strong> {{ booking.room.room_type.title() }}</li>
+                                <li><strong>Room Number:</strong> {{ booking.room.room_number }}</li>
+                                <li><strong>Price per Night:</strong> ${{ booking.room.price_per_night }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Stay Details</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Check-in:</strong> {{ booking.check_in_date.strftime('%B %d, %Y') }}</li>
+                                <li><strong>Check-out:</strong> {{ booking.check_out_date.strftime('%B %d, %Y') }}</li>
+                                <li><strong>Total Nights:</strong> {{ (booking.check_out_date - booking.check_in_date).days }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h4>Payment Information</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Total Amount:</strong> ${{ booking.total_price }}</li>
+                                <li><strong>Payment Status:</strong> 
+                                    <span class="badge bg-success">{{ booking.payment_status.title() }}</span>
+                                </li>
+                                <li><strong>Points Earned:</strong> {{ (booking.total_price / 10)|int }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Booking Reference</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Booking ID:</strong> #{{ booking.id }}</li>
+                                <li><strong>Booking Date:</strong> {{ booking.created_at.strftime('%B %d, %Y') }}</li>
+                                <li><strong>Status:</strong> 
+                                    <span class="badge bg-success">{{ booking.booking_status.title() }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('booking.search') }}" class="btn btn-primary me-2">Book Another Room</a>
+                <a href="#" class="btn btn-outline-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Confirmation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

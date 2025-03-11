@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Search Rooms{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Find Your Perfect Room</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-container">
+                <form method="POST" action="{{ url_for('booking.search') }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.check_in.label(class="form-label") }}
+                        {{ form.check_in(class="form-control" + (" is-invalid" if form.check_in.errors else "")) }}
+                        {% for error in form.check_in.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.check_out.label(class="form-label") }}
+                        {{ form.check_out(class="form-control" + (" is-invalid" if form.check_out.errors else "")) }}
+                        {% for error in form.check_out.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.room_type.label(class="form-label") }}
+                        {{ form.room_type(class="form-select" + (" is-invalid" if form.room_type.errors else "")) }}
+                        {% for error in form.room_type.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.guests.label(class="form-label") }}
+                        {{ form.guests(class="form-select" + (" is-invalid" if form.guests.errors else "")) }}
+                        {% for error in form.guests.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            {% if rooms %}
+            <div class="row">
+                {% for room in rooms %}
+                <div class="col-md-6 mb-4">
+                    <div class="card room-card">
+                        <img src="{{ room.image_url }}" class="card-img-top" alt="{{ room.room_type }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ room.room_type.title() }} Room</h5>
+                            <p class="card-text">{{ room.description }}</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-user-friends"></i> Up to {{ room.capacity }} guests</li>
+                                <li><i class="fas fa-dollar-sign"></i> ${{ room.price_per_night }}/night</li>
+                            </ul>
+                            <a href="{{ url_for('booking.room_detail', room_id=room.id) }}" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Please select your dates and preferences to see available rooms.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
