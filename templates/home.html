@@ -14,6 +14,21 @@
 <div class="container mt-5">
     <h2 class="text-center mb-4">Our Rooms</h2>
     <div class="row">
+        {% for room in rooms %}
+        <div class="col-md-4 mb-4">
+            <div class="card room-card">
+                <img src="{{ room.image_url }}" class="card-img-top" alt="{{ room.room_type }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ room.room_type|title }} Room</h5>
+                    <p class="card-text">{{ room.description|truncate(100) }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p class="text-primary mb-0">From ${{ room.price_per_night }}/night</p>
+                        <a href="{{ url_for('booking.room_detail', room_id=room.id) }}" class="btn btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
         <div class="col-md-4 mb-4">
             <div class="card room-card">
                 <img src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa" class="card-img-top" alt="Standard Room">
@@ -44,6 +59,7 @@
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
 
     <section class="amenities mt-5">

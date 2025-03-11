@@ -55,7 +55,7 @@
                         <img src="{{ room.image_url }}" class="card-img-top" alt="{{ room.room_type }}">
                         <div class="card-body">
                             <h5 class="card-title">{{ room.room_type.title() }} Room</h5>
-                            <p class="card-text">{{ room.description }}</p>
+                            <p class="card-text">{{ room.description|truncate(100) }}</p>
                             <ul class="list-unstyled">
                                 <li><i class="fas fa-user-friends"></i> Up to {{ room.capacity }} guests</li>
                                 <li><i class="fas fa-dollar-sign"></i> ${{ room.price_per_night }}/night</li>

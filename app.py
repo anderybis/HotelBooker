@@ -1,65 +1,90 @@
 import os
 import logging
-from flask import Flask, render_template
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager
 from flask_mail import Mail
-from sqlalchemy.orm import DeclarativeBase
 from flask_wtf.csrf import CSRFProtect
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('app.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
+# Initialize extensions
 class Base(DeclarativeBase):
     pass
 
-# Initialize extensions
 db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 mail = Mail()
 csrf = CSRFProtect()
 
-# Create app
+# Create the Flask application
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
 
-# Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
+# Load configuration
+# Use development configuration for Replit environment
+from dev_config import DevelopmentConfig
+app.config.from_object(DevelopmentConfig)
+logger.info("Using development configuration")
 
-# Configure mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-
-# Initialize extensions with app
+# Initialize extensions with the app
 db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
+login_manager.login_message_category = 'info'
 mail.init_app(app)
 csrf.init_app(app)
 
+# Import models and initialize them
+with app.app_context():
+    from models import User, Room, Booking
+    
+    # Create tables if they don't exist
+    db.create_all()
+    logger.info("Database tables created or already exist")
+
+# Import and register blueprints
+from routes.auth import bp as auth_bp
+from routes.admin import bp as admin_bp
+from routes.booking import bp as booking_bp
+from routes.main import bp as main_bp
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(booking_bp)
+app.register_blueprint(main_bp)
+logger.info("Blueprints registered")
+
+# User loader for Flask-Login
 @login_manager.user_loader
-def load_user(id):
+def load_user(user_id):
     from models import User
-    return User.query.get(int(id))
+    return User.query.get(int(user_id))
+
+# Error handlers
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    logger.error(f"Server error: {e}")
+    return render_template('errors/500.html'), 500
+
+from flask import render_template
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
-# Import routes after app creation to avoid circular imports
-from routes import auth, booking, admin
-app.register_blueprint(auth.bp)
-app.register_blueprint(booking.bp)
-app.register_blueprint(admin.bp)
-
-with app.app_context():
-    # Import models and create tables
-    import models
-    db.create_all()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

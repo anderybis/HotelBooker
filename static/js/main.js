@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Admin dashboard charts (if needed)
+// Admin dashboard charts
 function initializeCharts() {
     if (document.getElementById('bookingsChart')) {
         const ctx = document.getElementById('bookingsChart').getContext('2d');
@@ -102,6 +102,38 @@ function initializeCharts() {
                 scales: {
                     y: {
                         beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    if (document.getElementById('roomTypeChart')) {
+        const ctx = document.getElementById('roomTypeChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Standard', 'Deluxe', 'Suite'],
+                datasets: [{
+                    data: [30, 45, 25],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
                     }
                 }
             }
