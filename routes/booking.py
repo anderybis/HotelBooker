@@ -392,8 +392,13 @@ def send_booking_confirmation(booking):
     Luxury Hotel Team</p>
     """
     
-    mail.send(msg)
-    logger.info(f"Booking confirmation email sent to {booking.user.email}")
+    try:
+        mail.send(msg)
+        logger.info(f"Booking confirmation email sent to {booking.user.email}")
+        # Log a more detailed message for debugging
+        logger.info(f"EMAIL CONTENT: Subject: {msg.subject}, Recipient: {msg.recipients}, Body: {msg.body[:100]}...")
+    except Exception as e:
+        logger.error(f"Failed to send confirmation email: {e}")
 
 def send_booking_modification(booking, old_data):
     """Send booking modification email."""
@@ -471,8 +476,13 @@ def send_booking_modification(booking, old_data):
     Luxury Hotel Team</p>
     """
     
-    mail.send(msg)
-    logger.info(f"Booking modification email sent to {booking.user.email}")
+    try:
+        mail.send(msg)
+        logger.info(f"Booking modification email sent to {booking.user.email}")
+        # Log a more detailed message for debugging
+        logger.info(f"EMAIL CONTENT: Subject: {msg.subject}, Recipient: {msg.recipients}, Body: {msg.body[:100]}...")
+    except Exception as e:
+        logger.error(f"Failed to send modification email: {e}")
 
 def send_booking_cancellation(booking):
     """Send booking cancellation email."""
@@ -527,5 +537,10 @@ def send_booking_cancellation(booking):
     Luxury Hotel Team</p>
     """
     
-    mail.send(msg)
-    logger.info(f"Booking cancellation email sent to {booking.user.email}")
+    try:
+        mail.send(msg)
+        logger.info(f"Booking cancellation email sent to {booking.user.email}")
+        # Log a more detailed message for debugging
+        logger.info(f"EMAIL CONTENT: Subject: {msg.subject}, Recipient: {msg.recipients}, Body: {msg.body[:100]}...")
+    except Exception as e:
+        logger.error(f"Failed to send cancellation email: {e}")

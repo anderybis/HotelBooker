@@ -36,6 +36,7 @@ class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
     SQLALCHEMY_ECHO = True
-    # In development, we can use a fake email server or console logging
-    MAIL_SUPPRESS_SEND = True  # Don't actually send emails
+    # Print emails to console instead of sending them
+    MAIL_SUPPRESS_SEND = False  # Enable email sending
     MAIL_DEBUG = True  # Log more information about mail
+    TESTING = False  # Not in testing mode
